@@ -9,6 +9,11 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+    
+    <!-- Samsung A35 + Android 16 optimalizáció -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -17,40 +22,35 @@
         android:theme="@style/Theme.DeepSeekPro"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        android:supportsRtl="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        tools:targetApi="34">
 
-        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="deepseek" />
-            </intent-filter>
         </activity>
 
-        <!-- Search Activity -->
         <activity
             android:name=".ui.SearchActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.DeepSeekPro" />
+            android:parentActivityName=".MainActivity" />
 
-        <!-- NotePad Activity -->
         <activity
             android:name=".ui.NotePadActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.DeepSeekPro" />
+            android:parentActivityName=".MainActivity" />
 
-        <!-- File Provider (Android 7+) -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
