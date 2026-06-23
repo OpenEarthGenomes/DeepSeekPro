@@ -1,1 +1,11 @@
-
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DeepSeek Pro</string>
+    <string name="search_hint">🔎 Keresés a beszélgetésekben...</string>
+    <string name="input_hint">Írj üzenetet...</string>
+    <string name="empty_state">📭 Még nincs mentett beszélgetés</string>
+    <string name="no_results">😕 Nincs találat erre a kifejezésre</string>
+    <string name="save_success">💾 Beszélgetés elmentve</string>
+    <string name="delete_confirm">Biztosan törölni szeretnéd ezt a fájlt?</string>
+    <string name="share_title">Megosztás</string>
+</resources>
