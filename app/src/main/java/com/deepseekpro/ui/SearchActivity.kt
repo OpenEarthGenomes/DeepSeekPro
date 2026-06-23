@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.deepseekpro.MainActivity  // 🔥 IMPORT HIÁNYZOTT!
 import com.deepseekpro.R
 import com.deepseekpro.storage.NoteManager
 import kotlinx.coroutines.*
@@ -218,7 +219,9 @@ class SearchActivity : AppCompatActivity() {
                 contextText.text = "💡 ${result.context}"
                 lineNumberText.text = "📍 ${result.lineNumber}. üzenet"
                 
-                val matches = result.content.split(Regex(searchInput.text.toString()), ignoreCase = true).size - 1
+                // 🔥 JAVÍTVA! split() helyett Regex.findAll()
+                val regex = Regex(searchInput.text.toString(), RegexOption.IGNORE_CASE)
+                val matches = regex.findAll(result.content).count()
                 matchCountText.text = "🔍 $matches találat"
                 matchCountText.visibility = if (matches > 0) View.VISIBLE else View.GONE
 
