@@ -1,1 +1,36 @@
+# Android
+*.iml
+*.class
+*.dex
+*.apk
+*.ap_
 
+.gradle/
+.idea/
+build/
+app/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.log
+
+# Gradle
+gradle-wrapper.jar
+!gradle-wrapper.jar
+
+# Keystore
+*.jks
+*.keystore
+keystore.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
