@@ -1,1 +1,23 @@
-
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Keresés"
+        app:showAsAction="ifRoom" />
+    
+    <item
+        android:id="@+id/action_notepad"
+        android:icon="@drawable/ic_notepad"
+        android:title="Jegyzettömb"
+        app:showAsAction="ifRoom" />
+    
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_save"
+        android:title="Mentés"
+        app:showAsAction="ifRoom" />
+        
+</menu>
