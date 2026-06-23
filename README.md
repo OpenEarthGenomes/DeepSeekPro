@@ -16,7 +16,7 @@
 ## 📱 Letöltés
 
 ### GitHub Releases
-- [Legfrissebb APK](https://github.com/yourusername/DeepSeekPro/releases/latest)
+[Legfrissebb APK](https://github.com/yourusername/DeepSeekPro/releases/latest)
 
 ### Build magadnak
 ```bash
