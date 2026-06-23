@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sötét mód - Android 16 One UI 8.5 optimalizálva -->
+    <style name="Theme.DeepSeekPro" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#6C63FF</item>
+        <item name="colorPrimaryDark">#1A1A2E</item>
+        <item name="colorAccent">#8B83FF</item>
+        <item name="android:windowBackground">#121212</item>
+        <item name="android:statusBarColor">#0D0D0D</item>
+        <item name="android:navigationBarColor">#121212</item>
+        <item name="android:textColor">#E8EAED</item>
+        <item name="android:colorControlNormal">#8B83FF</item>
+        <item name="android:colorControlActivated">#8B83FF</item>
+        
+        <!-- One UI 8.5 specifikus -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:navigationBarColor">#121212</item>
+        <item name="android:statusBarColor">#0D0D0D</item>
+    </style>
+</resources>
