@@ -1,10 +1,7 @@
-# .github/workflows/android-build.yml
 name: 🚀 DeepSeek Pro - Automatikus APK Build
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
@@ -13,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 📥 Checkout repository
+    - name: 📥 Checkout
       uses: actions/checkout@v4
 
     - name: ☕ Set up JDK 17
@@ -25,53 +22,78 @@ jobs:
     - name: 🛠️ Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: 🔑 Create local.properties
+    - name: 🚀 Setup Gradle (automatikus wrapper)
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.2'
+
+    - name: 📸 Generálom az ikonokat (ImageMagick)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
+        mkdir -p app/src/main/res/mipmap-hdpi
+        mkdir -p app/src/main/res/mipmap-mdpi
+        mkdir -p app/src/main/res/mipmap-xhdpi
+        mkdir -p app/src/main/res/mipmap-xxhdpi
+        mkdir -p app/src/main/res/mipmap-xxxhdpi
+        # 512x512 -> xxxhdpi
+        convert -size 512x512 xc:#6C63FF -gravity center -pointsize 160 -fill white -annotate 0 "DS" app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+        convert -size 512x512 xc:#6C63FF -gravity center -pointsize 160 -fill white -annotate 0 "DS" -background none -flatten app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+        # Átméretezés a többi density-re
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 192x192 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 96x96 app/src/main/res/mipmap-xhdpi/ic_launcher.png
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 72x72 app/src/main/res/mipmap-hdpi/ic_launcher.png
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 48x48 app/src/main/res/mipmap-mdpi/ic_launcher.png
+        # Round ikonok
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 192x192 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 96x96 app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 72x72 app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 48x48 app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+
+    - name: 🔑 local.properties
       run: |
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "android.useAndroidX=true" >> local.properties
         echo "android.enableJetifier=true" >> local.properties
 
-    - name: 🚀 Grant execute permission for gradlew
-      run: chmod +x gradlew
-
     - name: 🔨 Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --stacktrace
 
-    - name: 🔨 Build Release APK (unsigned)
-      run: ./gradlew assembleRelease
+    - name: 🔨 Build Release APK
+      run: ./gradlew assembleRelease --stacktrace
 
-    - name: 📦 Upload Debug APK
+    - name: 📦 Feltöltés - Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: DeepSeekPro-Debug-APK
         path: app/build/outputs/apk/debug/*.apk
         retention-days: 30
 
-    - name: 📦 Upload Release APK
+    - name: 📦 Feltöltés - Release APK
       uses: actions/upload-artifact@v4
       with:
         name: DeepSeekPro-Release-APK
         path: app/build/outputs/apk/release/*.apk
         retention-days: 30
 
-    - name: 📊 Generate Build Info
+    - name: 📊 Build összegzés
       run: |
-        echo "## 📱 Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "## 📱 Build Sikeres!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
-        echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+        echo "| APK | Méret |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
         for apk in app/build/outputs/apk/debug/*.apk; do
           if [ -f "$apk" ]; then
             size=$(du -h "$apk" | cut -f1)
             name=$(basename "$apk")
-            echo "| $name | $size |" >> $GITHUB_STEP_SUMMARY
+            echo "| Debug APK | $size |" >> $GITHUB_STEP_SUMMARY
           fi
         done
         for apk in app/build/outputs/apk/release/*.apk; do
           if [ -f "$apk" ]; then
             size=$(du -h "$apk" | cut -f1)
             name=$(basename "$apk")
-            echo "| $name | $size |" >> $GITHUB_STEP_SUMMARY
+            echo "| Release APK | $size |" >> $GITHUB_STEP_SUMMARY
           fi
         done
 
@@ -81,27 +103,27 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-    - name: 📥 Download Debug APK
+    - name: 📥 Debug APK letöltése
       uses: actions/download-artifact@v4
       with:
         name: DeepSeekPro-Debug-APK
         path: debug-apk/
 
-    - name: 📥 Download Release APK
+    - name: 📥 Release APK letöltése
       uses: actions/download-artifact@v4
       with:
         name: DeepSeekPro-Release-APK
         path: release-apk/
 
-    - name: 🏷️ Create GitHub Release
+    - name: 🏷️ GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v1.0.${{ github.run_number }}
         name: "DeepSeek Pro v1.0.${{ github.run_number }}"
         body: |
-          ## 🚀 DeepSeek Pro APK
+          ## 🚀 DeepSeek Pro - KÉSZ APK!
           
-          ### 📱 Samsung A35 + Android 16 (One UI 8.5) optimalizálva!
+          ### 📱 Samsung A35 + Android 16 (One UI 8.5)
           
           ### ✨ Funkciók
           - 💬 DeepSeek chat (WebView)
@@ -112,14 +134,12 @@ jobs:
           - ⚡ Gyors lapozás (csúszka)
           - 📎 Fájlfeltöltés
           - 🌐 Magyar nyelv
-          - 🌙 Éjszakai mód (Android 16)
+          - 🌙 Éjszakai mód
           - 📤 Megosztás/Exportálás
           
-          ### 📦 Build Info
+          ### 📦 Build adatok
           - Build #${{ github.run_number }}
           - Commit: ${{ github.sha }}
-          - Platform: Android 16 (One UI 8.5)
-          - Samsung A35 optimalizálva
           
         files: |
           debug-apk/*.apk
