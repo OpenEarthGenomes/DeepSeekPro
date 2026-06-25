@@ -14,6 +14,6 @@ class NotePadActivity : AppCompatActivity() {
         setContentView(R.layout.activity_notepad)
 
         textView = findViewById(R.id.textView)
-        textView.text = "Jegyzettömb - Működik!"
+        textView.text = "📁 Jegyzettömb - Alap működik!"
     }
 }
