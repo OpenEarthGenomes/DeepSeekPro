@@ -7,41 +7,56 @@ class ScrollHelper(
     private val webView: WebView,
     private val seekBar: SeekBar
 ) {
-    
-    private var isScrolling = false
-    private var totalHeight = 0f
-    
-    fun scrollToProgress(progress: Int) {
-        if (isScrolling) return
-        isScrolling = true
-        
+
+    private var isSeekBarChanging = false
+    private var isWebViewScrolling = false
+
+    fun setup() {
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    isSeekBarChanging = true
+                    scrollWebViewTo(progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                isSeekBarChanging = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                isSeekBarChanging = false
+            }
+        })
+
+        webView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            if (!isSeekBarChanging) {
+                updateSeekBarFromScroll(scrollY)
+            }
+        }
+    }
+
+    private fun scrollWebViewTo(progress: Int) {
         webView.evaluateJavascript("document.body.scrollHeight;") { heightResult ->
             try {
-                totalHeight = heightResult.toFloatOrNull() ?: 1f
+                val totalHeight = heightResult.toFloatOrNull() ?: 1f
                 val targetY = (totalHeight * progress / 100f).toInt()
                 webView.scrollTo(0, targetY)
             } catch (e: Exception) {
-                // ignore
-            } finally {
-                isScrolling = false
+                // Ha nem sikerül, ignore
             }
         }
     }
-    
-    fun syncSeekBarWithScroll(scrollY: Int) {
-        if (isScrolling) return
+
+    private fun updateSeekBarFromScroll(scrollY: Int) {
         webView.evaluateJavascript("document.body.scrollHeight;") { heightResult ->
             try {
-                totalHeight = heightResult.toFloatOrNull() ?: 1f
+                val totalHeight = heightResult.toFloatOrNull() ?: 1f
                 val progress = (scrollY / totalHeight * 100).toInt().coerceIn(0, 100)
                 seekBar.progress = progress
             } catch (e: Exception) {
-                // ignore
+                // Ha nem sikerül, ignore
             }
         }
-    }
-    
-    fun getCurrentScrollPosition(): Int {
-        return webView.scrollY
     }
 }
