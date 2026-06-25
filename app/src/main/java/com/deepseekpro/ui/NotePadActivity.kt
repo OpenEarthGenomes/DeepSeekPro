@@ -3,13 +3,12 @@ package com.deepseekpro.ui
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AlertDialog          // ✅ JÓ!
+import androidx.appcompat.app.AppCompatActivity   // ✅ JÓ!
+import androidx.recyclerview.widget.LinearLayoutManager // ✅ JÓ!
+import androidx.recyclerview.widget.RecyclerView // ✅ JÓ!
 import com.deepseekpro.R
-import com.deepseekpro.storage.NoteManager
-import java.io.File
+import com.deepseekpro.storage.NoteManager      // ✅ JÓ! (NotesManager helyett)
 
 class NotePadActivity : AppCompatActivity() {
 
@@ -20,7 +19,7 @@ class NotePadActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_notepad)
+        setContentView(R.layout.activity_notepad)  // ✅ JÓ!
 
         noteManager = NoteManager(this)
         recyclerView = findViewById(R.id.recyclerView)
@@ -31,7 +30,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun loadConversations() {
-        var files = noteManager.getAllConversations()
+        var files = noteManager.getAllConversations()  // ✅ var, nem val!
 
         if (files.isNotEmpty()) {
             recyclerView.visibility = android.view.View.VISIBLE
