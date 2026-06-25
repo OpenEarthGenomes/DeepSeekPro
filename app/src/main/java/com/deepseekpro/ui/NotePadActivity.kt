@@ -3,12 +3,13 @@ package com.deepseekpro.ui
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog          // ✅ JÓ!
-import androidx.appcompat.app.AppCompatActivity   // ✅ JÓ!
-import androidx.recyclerview.widget.LinearLayoutManager // ✅ JÓ!
-import androidx.recyclerview.widget.RecyclerView // ✅ JÓ!
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.deepseekpro.R
-import com.deepseekpro.storage.NoteManager      // ✅ JÓ! (NotesManager helyett)
+import com.deepseekpro.storage.NoteManager
+import java.io.File  // 🔥 EZ HIÁNYZOTT!
 
 class NotePadActivity : AppCompatActivity() {
 
@@ -19,7 +20,7 @@ class NotePadActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_notepad)  // ✅ JÓ!
+        setContentView(R.layout.activity_notepad)
 
         noteManager = NoteManager(this)
         recyclerView = findViewById(R.id.recyclerView)
@@ -30,7 +31,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun loadConversations() {
-        var files = noteManager.getAllConversations()  // ✅ var, nem val!
+        var files = noteManager.getAllConversations()  // 🔥 var, nem val!
 
         if (files.isNotEmpty()) {
             recyclerView.visibility = android.view.View.VISIBLE
@@ -49,11 +50,11 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun showFileContent(file: File) {
-        var content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)  // 🔥 var, nem val!
 
         if (content != null) {
-            var scrollView = android.widget.ScrollView(this)
-            var textView = TextView(this).apply {
+            val scrollView = android.widget.ScrollView(this)
+            val textView = TextView(this).apply {
                 text = content
                 textSize = 14f
                 setPadding(24, 24, 24, 24)
