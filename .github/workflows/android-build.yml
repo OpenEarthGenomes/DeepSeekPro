@@ -1,4 +1,3 @@
-# .github/workflows/android-build.yml
 name: 🚀 DeepSeek Pro - Automatikus APK Build
 
 on:
@@ -11,6 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: 🧹 TELJES CACHE TÖRLÉS
+      run: |
+        rm -rf ~/.gradle/caches/
+        rm -rf ~/.gradle/wrapper/
+        rm -rf .gradle/
+        rm -rf app/build/
+        echo "✅ Cache teljesen törölve!"
+
     - name: 📥 Checkout
       uses: actions/checkout@v4
 
@@ -23,126 +30,9 @@ jobs:
     - name: 🛠️ Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: 🚀 Setup Gradle (automatikus wrapper)
+    - name: 🚀 Setup Gradle (cache nélkül)
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.2'
-        # 🔥 CACHE TÖRLÉSE! 🔥
         cache-read-only: false
         cache-overwrite-existing: true
-
-    - name: 📸 Generálom az ikonokat (ImageMagick)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y imagemagick
-        mkdir -p app/src/main/res/mipmap-hdpi
-        mkdir -p app/src/main/res/mipmap-mdpi
-        mkdir -p app/src/main/res/mipmap-xhdpi
-        mkdir -p app/src/main/res/mipmap-xxhdpi
-        mkdir -p app/src/main/res/mipmap-xxxhdpi
-        # 512x512 -> xxxhdpi
-        convert -size 512x512 xc:#6C63FF -gravity center -pointsize 160 -fill white -annotate 0 "DS" app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-        convert -size 512x512 xc:#6C63FF -gravity center -pointsize 160 -fill white -annotate 0 "DS" -background none -flatten app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
-        # Átméretezés
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 192x192 app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 96x96 app/src/main/res/mipmap-xhdpi/ic_launcher.png
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 72x72 app/src/main/res/mipmap-hdpi/ic_launcher.png
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher.png -resize 48x48 app/src/main/res/mipmap-mdpi/ic_launcher.png
-        # Round
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 192x192 app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 96x96 app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 72x72 app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-        convert app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png -resize 48x48 app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-
-    - name: 🔑 local.properties
-      run: |
-        echo "sdk.dir=$ANDROID_HOME" > local.properties
-        echo "android.useAndroidX=true" >> local.properties
-        echo "android.enableJetifier=true" >> local.properties
-
-    - name: 🧹 Clean (cache törlés)
-      run: gradle clean --stacktrace
-
-    - name: 🔨 Build Debug APK
-      run: gradle assembleDebug --stacktrace --no-build-cache
-
-    - name: 🔨 Build Release APK
-      run: gradle assembleRelease --stacktrace --no-build-cache
-
-    - name: 📦 Feltöltés - Debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: DeepSeekPro-Debug-APK
-        path: app/build/outputs/apk/debug/*.apk
-        retention-days: 30
-
-    - name: 📦 Feltöltés - Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: DeepSeekPro-Release-APK
-        path: app/build/outputs/apk/release/*.apk
-        retention-days: 30
-
-    - name: 📊 Build összegzés
-      run: |
-        echo "## 📱 Build Sikeres!" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "| APK | Méret |" >> $GITHUB_STEP_SUMMARY
-        echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
-        for apk in app/build/outputs/apk/debug/*.apk; do
-          if [ -f "$apk" ]; then
-            size=$(du -h "$apk" | cut -f1)
-            echo "| Debug APK | $size |" >> $GITHUB_STEP_SUMMARY
-          fi
-        done
-        for apk in app/build/outputs/apk/release/*.apk; do
-          if [ -f "$apk" ]; then
-            size=$(du -h "$apk" | cut -f1)
-            echo "| Release APK | $size |" >> $GITHUB_STEP_SUMMARY
-          fi
-        done
-
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-    - name: 📥 Debug APK letöltése
-      uses: actions/download-artifact@v4
-      with:
-        name: DeepSeekPro-Debug-APK
-        path: debug-apk/
-
-    - name: 📥 Release APK letöltése
-      uses: actions/download-artifact@v4
-      with:
-        name: DeepSeekPro-Release-APK
-        path: release-apk/
-
-    - name: 🏷️ GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v1.0.${{ github.run_number }}
-        name: "DeepSeek Pro v1.0.${{ github.run_number }}"
-        body: |
-          ## 🚀 DeepSeek Pro APK
-          
-          ### ✨ Funkciók
-          - 💬 DeepSeek chat
-          - 🧠 DeepThink (R1)
-          - 📁 Automatikus mentés
-          - 🔍 Két szintű keresés
-          - 📋 Jegyzettömb
-          - ⚡ Gyors lapozás
-          - 🌙 Éjszakai mód
-          
-          ### 📦 Build Info
-          - Build #${{ github.run_number }}
-          - Commit: ${{ github.sha }}
-          
-        files: |
-          debug-apk/*.apk
-          release-apk/*.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
