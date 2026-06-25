@@ -31,7 +31,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun loadConversations() {
-        val files = noteManager.getAllConversations()
+        var files = noteManager.getAllConversations()
 
         if (files.isNotEmpty()) {
             recyclerView.visibility = android.view.View.VISIBLE
@@ -50,12 +50,11 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun showFileContent(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
 
         if (content != null) {
-            // Görgethető dialógus a tartalommal
-            val scrollView = android.widget.ScrollView(this)
-            val textView = TextView(this).apply {
+            var scrollView = android.widget.ScrollView(this)
+            var textView = TextView(this).apply {
                 text = content
                 textSize = 14f
                 setPadding(24, 24, 24, 24)
