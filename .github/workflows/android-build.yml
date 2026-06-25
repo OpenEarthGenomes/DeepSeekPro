@@ -1,9 +1,7 @@
-name: 🚀 DeepSeek Pro - Automatikus APK Build
+name: 🚀 DeepSeek Pro - Debug APK Build
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
@@ -65,95 +63,10 @@ jobs:
     - name: 🔨 Debug APK build
       run: gradle assembleDebug --stacktrace --no-build-cache
 
-    - name: 🔨 Release APK build
-      run: gradle assembleRelease --stacktrace --no-build-cache
-
-    - name: 📂 APK fájlok listázása
-      run: |
-        echo "=== APK KERESÉS ==="
-        find app/build -name "*.apk" -type f 2>/dev/null || echo "Nincs APK"
-        echo ""
-        echo "=== app/build/outputs/apk/ ==="
-        ls -la app/build/outputs/apk/ 2>/dev/null || echo "Nincs apk mappa"
-
     - name: 📦 Feltöltés - Debug APK
       if: success()
       uses: actions/upload-artifact@v4
       with:
         name: DeepSeekPro-Debug-APK
-        path: |
-          app/build/outputs/apk/debug/*.apk
-          app/build/outputs/apk/*/debug/*.apk
-          app/build/outputs/apk/*.apk
+        path: app/build/outputs/apk/debug/*.apk
         retention-days: 30
-
-    - name: 📦 Feltöltés - Release APK
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: DeepSeekPro-Release-APK
-        path: |
-          app/build/outputs/apk/release/*.apk
-          app/build/outputs/apk/*/release/*.apk
-          app/build/outputs/apk/*.apk
-        retention-days: 30
-
-    - name: 📊 Build összegzés
-      if: success()
-      run: |
-        echo "## 📱 Build Sikeres!" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "| APK | Méret |" >> $GITHUB_STEP_SUMMARY
-        echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
-        for apk in app/build/outputs/apk/debug/*.apk; do
-          if [ -f "$apk" ]; then
-            size=$(du -h "$apk" | cut -f1)
-            echo "| Debug APK | $size |" >> $GITHUB_STEP_SUMMARY
-          fi
-        done
-        for apk in app/build/outputs/apk/release/*.apk; do
-          if [ -f "$apk" ]; then
-            size=$(du -h "$apk" | cut -f1)
-            echo "| Release APK | $size |" >> $GITHUB_STEP_SUMMARY
-          fi
-        done
-
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-    - name: 📥 APK-k letöltése
-      uses: actions/download-artifact@v4
-      with:
-        path: apks/
-
-    - name: 📂 APK fájlok ellenőrzése
-      run: |
-        echo "=== ÖSSZES LETÖLTÖTT FÁJL ==="
-        find apks -type f -name "*.apk" -exec ls -la {} \;
-
-    - name: 🏷️ GitHub Release (CLI)
-      run: |
-        gh release create v1.0.${{ github.run_number }} \
-          --title "DeepSeek Pro v1.0.${{ github.run_number }}" \
-          --notes "## 🚀 DeepSeek Pro APK
-
-        ### ✨ Funkciók
-        - 💬 DeepSeek chat (WebView)
-        - 🧠 DeepThink (R1) kapcsoló
-        - 📁 Automatikus mentés
-        - 🔍 Két szintű keresés
-        - 📋 Jegyzettömb
-        - ⚡ Gyors lapozás (csúszka)
-        - 📎 Fájlfeltöltés
-        - 🌐 Magyar nyelv
-        - 🌙 Éjszakai mód (Android 16)
-
-        ### 📦 Build Info
-        - Build #${{ github.run_number }}
-        - Commit: ${{ github.sha }}" \
-        $(find apks -name "*.apk" -type f | sed 's/^/-a /')
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
