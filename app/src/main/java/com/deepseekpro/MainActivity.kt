@@ -10,7 +10,6 @@ import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebChromeClient
@@ -26,11 +25,9 @@ import com.deepseekpro.ui.NotePadActivity
 import com.deepseekpro.ui.SearchActivity
 import com.deepseekpro.utils.ScrollHelper
 import com.deepseekpro.webview.DeepSeekJavaScriptInterface
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
-    // UI elemek
     private lateinit var webView: WebView
     private lateinit var seekBar: SeekBar
     private lateinit var inputMessage: EditText
@@ -38,14 +35,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var r1Toggle: ImageButton
     private lateinit var attachButton: ImageButton
     private lateinit var progressBar: ProgressBar
-    
-    // Változók
+
     private var isR1Mode = false
     private var currentConversationTitle = ""
     private lateinit var noteManager: NoteManager
     private lateinit var scrollHelper: ScrollHelper
-    
-    // File feltöltéshez
+
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private val REQUEST_CODE_FILE_CHOOSER = 1001
 
@@ -56,11 +51,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
-        // Inicializálás
+
         noteManager = NoteManager(this)
-        
-        // UI elemek betöltése
+
         webView = findViewById(R.id.webView)
         seekBar = findViewById(R.id.seekBar)
         inputMessage = findViewById(R.id.inputMessage)
@@ -68,24 +61,15 @@ class MainActivity : AppCompatActivity() {
         r1Toggle = findViewById(R.id.r1Toggle)
         attachButton = findViewById(R.id.attachButton)
         progressBar = findViewById(R.id.progressBar)
-        
-        // Engedélyek ellenőrzése
+
         checkPermissions()
-        
-        // WebView beállítása
         setupWebView()
-        
-        // Csúszka beállítása
+
         scrollHelper = ScrollHelper(webView, seekBar)
         setupSeekBar()
-        
-        // Gombok beállítása
+
         setupButtons()
-        
-        // Ablak inszetek kezelése
         setupWindowInsets()
-        
-        // Intent kezelése (keresőből visszatérés)
         handleIntent(intent)
     }
 
@@ -99,7 +83,7 @@ class MainActivity : AppCompatActivity() {
             val fileName = it.getStringExtra("OPEN_FILE")
             val messageIndex = it.getIntExtra("SCROLL_TO_MESSAGE", -1)
             val searchQuery = it.getStringExtra("SEARCH_QUERY")
-            
+
             if (!fileName.isNullOrEmpty()) {
                 Toast.makeText(this, "📂 Betöltés: $fileName", Toast.LENGTH_LONG).show()
                 loadConversationFromFile(fileName, messageIndex, searchQuery)
@@ -114,12 +98,12 @@ class MainActivity : AppCompatActivity() {
                 .replace("=== DeepSeek Beszélgetés ===", "")
                 .replace(Regex("Dátum: .*\\n"), "")
                 .trim()
-            
+
             webView.evaluateJavascript(
                 "document.querySelector('textarea').value = '${cleanContent.take(1000)}...';",
                 null
             )
-            
+
             if (!searchQuery.isNullOrEmpty()) {
                 webView.evaluateJavascript(
                     "highlightText('$searchQuery');",
@@ -132,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val permissions = mutableListOf<String>()
-            
+
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -140,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
-            
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (!Environment.isExternalStorageManager()) {
                     try {
@@ -153,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            
+
             if (permissions.isNotEmpty()) {
                 ActivityCompat.requestPermissions(
                     this,
@@ -204,10 +188,6 @@ class MainActivity : AppCompatActivity() {
                 forceHungarianLanguage()
                 setupScrollSync()
             }
-            
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                return false
-            }
         }
 
         webView.webChromeClient = object : WebChromeClient() {
@@ -229,9 +209,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.loadUrl("https://chat.deepseek.com")
-        
+
         webView.addJavascriptInterface(
-            DeepSeekJavaScriptInterface(this) { message ->
+            DeepSeekJavaScriptInterface(this) {
                 runOnUiThread {
                     saveCurrentConversation()
                 }
@@ -361,13 +341,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSeekBar() {
+        scrollHelper.setup()  // 🔥 EZ HIÁNYZOTT!
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     scrollHelper.scrollToProgress(progress)
                 }
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -422,16 +402,17 @@ class MainActivity : AppCompatActivity() {
     private fun sendMessageToDeepSeek(message: String) {
         val escapedMessage = message.replace("'", "\\'").replace("\n", "\\n")
         progressBar.visibility = View.VISIBLE
-        
+
         webView.evaluateJavascript(
             "sendDeepSeekMessage('$escapedMessage');",
             { result ->
                 if (result == "true") {
                     webView.evaluateJavascript(
                         "setTimeout(function() { getLastDeepSeekMessage(); }, 2000);",
-                        { reply ->
+                        {
                             progressBar.visibility = View.GONE
                             saveCurrentConversation()
+                            updateSeekBar()  // 🔥 CSÚSZKA FRISSÍTÉSE
                         }
                     )
                 } else {
@@ -442,6 +423,19 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun updateSeekBar() {
+        webView.evaluateJavascript("document.body.scrollHeight;") { heightResult ->
+            try {
+                val totalHeight = heightResult.toFloatOrNull() ?: 1f
+                val currentScroll = webView.scrollY
+                val progress = (currentScroll / totalHeight * 100).toInt().coerceIn(0, 100)
+                seekBar.progress = progress
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+    }
+
     private fun saveCurrentConversation() {
         webView.evaluateJavascript("getFullDeepSeekChat();") { chatContent ->
             if (chatContent.isNotEmpty() && chatContent != "null" && chatContent != "\"\"") {
@@ -450,7 +444,7 @@ class MainActivity : AppCompatActivity() {
                     content = content.substring(1, content.length - 1)
                 }
                 content = content.replace("\\n", "\n").replace("\\\"", "\"")
-                
+
                 val fileName = noteManager.saveConversation(
                     content = content,
                     title = currentConversationTitle
