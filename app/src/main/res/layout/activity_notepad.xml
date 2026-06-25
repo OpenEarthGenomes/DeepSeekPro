@@ -2,16 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
+    android:padding="8dp"
     android:background="#FAFAFA">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textColor="#1A1A2E"
-        android:text="📁 Jegyzettömb" />
+        android:layout_marginTop="60dp"
+        android:text="📭 Még nincs mentett beszélgetés"
+        android:textSize="18sp"
+        android:textColor="#999999"
+        android:gravity="center"
+        android:visibility="visible" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </LinearLayout>
