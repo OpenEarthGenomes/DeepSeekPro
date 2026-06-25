@@ -104,7 +104,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun loadConversations() {
-        val files = noteManager.getAllConversations()
+        var files = noteManager.getAllConversations()
         currentFiles = files
         
         if (currentFiles.isNotEmpty()) {
@@ -130,14 +130,14 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun applyFiltersAndSort() {
-        val query = searchInput.text.toString().trim()
-        val filteredFiles = if (query.isNotEmpty()) {
+        var query = searchInput.text.toString().trim()
+        var filteredFiles = if (query.isNotEmpty()) {
             currentFiles.filter { it.name.contains(query, ignoreCase = true) }
         } else {
             currentFiles
         }
         
-        val sortedFiles = sortFiles(filteredFiles)
+        var sortedFiles = sortFiles(filteredFiles)
         
         if (sortedFiles.isNotEmpty()) {
             adapter.updateFiles(sortedFiles)
@@ -166,10 +166,10 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun showFilePreview(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
         if (content != null) {
-            val scrollView = ScrollView(this)
-            val textView = TextView(this).apply {
+            var scrollView = ScrollView(this)
+            var textView = TextView(this).apply {
                 text = content
                 textSize = 14f
                 setPadding(24, 24, 24, 24)
@@ -206,9 +206,9 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun shareConversation(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
         if (content != null) {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            var shareIntent = Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_TEXT, content)
                 type = "text/plain"
             }
@@ -217,9 +217,9 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun exportConversation(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
         if (content != null) {
-            val exportFile = File(
+            var exportFile = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                 "DeepSeek_${file.name}"
             )
@@ -227,7 +227,7 @@ class NotePadActivity : AppCompatActivity() {
             
             Toast.makeText(this, "📁 Exportálva: ${exportFile.absolutePath}", Toast.LENGTH_LONG).show()
             
-            val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            var uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
                     this,
                     "${packageName}.fileprovider",
@@ -237,7 +237,7 @@ class NotePadActivity : AppCompatActivity() {
                 Uri.fromFile(exportFile)
             }
             
-            val intent = Intent(Intent.ACTION_VIEW).apply {
+            var intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "text/plain")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
@@ -277,12 +277,12 @@ class NotePadActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = layoutInflater.inflate(R.layout.item_notepad, parent, false)
+            var view = layoutInflater.inflate(R.layout.item_notepad, parent, false)
             return ViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val file = files[position]
+            var file = files[position]
             holder.bind(file)
         }
 
