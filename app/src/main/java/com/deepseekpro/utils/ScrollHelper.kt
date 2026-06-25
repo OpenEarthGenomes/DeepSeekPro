@@ -9,14 +9,13 @@ class ScrollHelper(
 ) {
 
     private var isSeekBarChanging = false
-    private var isWebViewScrolling = false
 
     fun setup() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     isSeekBarChanging = true
-                    scrollWebViewTo(progress)
+                    scrollToProgress(progress)
                 }
             }
 
@@ -36,14 +35,14 @@ class ScrollHelper(
         }
     }
 
-    private fun scrollWebViewTo(progress: Int) {
+    fun scrollToProgress(progress: Int) {
         webView.evaluateJavascript("document.body.scrollHeight;") { heightResult ->
             try {
                 val totalHeight = heightResult.toFloatOrNull() ?: 1f
                 val targetY = (totalHeight * progress / 100f).toInt()
                 webView.scrollTo(0, targetY)
             } catch (e: Exception) {
-                // Ha nem sikerül, ignore
+                // ignore
             }
         }
     }
@@ -55,7 +54,7 @@ class ScrollHelper(
                 val progress = (scrollY / totalHeight * 100).toInt().coerceIn(0, 100)
                 seekBar.progress = progress
             } catch (e: Exception) {
-                // Ha nem sikerül, ignore
+                // ignore
             }
         }
     }
