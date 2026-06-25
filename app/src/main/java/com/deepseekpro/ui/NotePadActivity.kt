@@ -105,7 +105,7 @@ class NotePadActivity : AppCompatActivity() {
 
     private fun loadConversations() {
         val files = noteManager.getAllConversations()
-        currentFiles = sortFiles(files)
+        currentFiles = files
         
         if (currentFiles.isNotEmpty()) {
             adapter.updateFiles(currentFiles)
@@ -166,7 +166,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun showFilePreview(file: File) {
-        var content = noteManager.readConversation(file.name)
+        val content = noteManager.readConversation(file.name)
         if (content != null) {
             val scrollView = ScrollView(this)
             val textView = TextView(this).apply {
@@ -206,7 +206,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun shareConversation(file: File) {
-        var content = noteManager.readConversation(file.name)
+        val content = noteManager.readConversation(file.name)
         if (content != null) {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_TEXT, content)
@@ -217,7 +217,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun exportConversation(file: File) {
-        var content = noteManager.readConversation(file.name)
+        val content = noteManager.readConversation(file.name)
         if (content != null) {
             val exportFile = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -300,7 +300,7 @@ class NotePadActivity : AppCompatActivity() {
             fun bind(file: File) {
                 fileNameText.text = file.name
                 fileDateText.text = noteManager.getFileDate(file.name) ?: "Ismeretlen"
-                val size = noteManager.getFileSize(file.name)
+                var size = noteManager.getFileSize(file.name)
                 fileSizeText.text = if (size > 1024) {
                     "${size / 1024} KB"
                 } else {
