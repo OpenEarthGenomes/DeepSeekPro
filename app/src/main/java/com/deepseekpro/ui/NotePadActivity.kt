@@ -38,7 +38,6 @@ class NotePadActivity : AppCompatActivity() {
 
             adapter = NoteAdapter(files) { file ->
                 Toast.makeText(this, "📂 Kiválasztva: ${file.name}", Toast.LENGTH_SHORT).show()
-                // Később: fájl tartalmának megjelenítése
             }
 
             recyclerView.adapter = adapter
