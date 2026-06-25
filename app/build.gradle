@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' version '1.9.22'   // 🔥 FRISS KOTLIN VERZIÓ!
+    id 'org.jetbrains.kotlin.android' version '1.9.20'   // 🔥 FRISS KOTLIN VERZIÓ!
 }
 
 android {
