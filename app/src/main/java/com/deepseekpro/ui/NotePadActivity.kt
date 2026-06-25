@@ -166,7 +166,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun showFilePreview(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
         if (content != null) {
             val scrollView = ScrollView(this)
             val textView = TextView(this).apply {
@@ -206,7 +206,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun shareConversation(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
         if (content != null) {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_TEXT, content)
@@ -217,7 +217,7 @@ class NotePadActivity : AppCompatActivity() {
     }
 
     private fun exportConversation(file: File) {
-        val content = noteManager.readConversation(file.name)
+        var content = noteManager.readConversation(file.name)
         if (content != null) {
             val exportFile = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -307,7 +307,7 @@ class NotePadActivity : AppCompatActivity() {
                     "$size B"
                 }
                 
-                val content = noteManager.readConversation(file.name)
+                var content = noteManager.readConversation(file.name)
                 filePreviewText.text = content?.take(100)?.replace("\n", " ")?.plus("...") 
                     ?: "📄 Üres fájl"
                 filePreviewText.visibility = View.VISIBLE
