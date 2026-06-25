@@ -3,6 +3,7 @@ package com.deepseekpro.ui
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,7 +38,7 @@ class NotePadActivity : AppCompatActivity() {
             emptyState.visibility = android.view.View.GONE
 
             adapter = NoteAdapter(files) { file ->
-                Toast.makeText(this, "📂 Kiválasztva: ${file.name}", Toast.LENGTH_SHORT).show()
+                showFileContent(file)
             }
 
             recyclerView.adapter = adapter
@@ -45,6 +46,30 @@ class NotePadActivity : AppCompatActivity() {
             recyclerView.visibility = android.view.View.GONE
             emptyState.visibility = android.view.View.VISIBLE
             emptyState.text = "📭 Még nincs mentett beszélgetés"
+        }
+    }
+
+    private fun showFileContent(file: File) {
+        val content = noteManager.readConversation(file.name)
+
+        if (content != null) {
+            // Görgethető dialógus a tartalommal
+            val scrollView = android.widget.ScrollView(this)
+            val textView = TextView(this).apply {
+                text = content
+                textSize = 14f
+                setPadding(24, 24, 24, 24)
+                isTextSelectable = true
+            }
+            scrollView.addView(textView)
+
+            AlertDialog.Builder(this)
+                .setTitle("📄 ${file.name}")
+                .setView(scrollView)
+                .setPositiveButton("Bezár") { dialog, _ -> dialog.dismiss() }
+                .show()
+        } else {
+            Toast.makeText(this, "❌ Nem sikerült betölteni a fájlt!", Toast.LENGTH_SHORT).show()
         }
     }
 }
