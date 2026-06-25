@@ -2,6 +2,7 @@ package com.deepseekpro.ui
 
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ class NotePadActivity : AppCompatActivity() {
     private lateinit var noteManager: NoteManager
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyState: TextView
+    private lateinit var adapter: NoteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,10 +31,17 @@ class NotePadActivity : AppCompatActivity() {
 
     private fun loadConversations() {
         val files = noteManager.getAllConversations()
+
         if (files.isNotEmpty()) {
             recyclerView.visibility = android.view.View.VISIBLE
             emptyState.visibility = android.view.View.GONE
-            // TODO: Adapter hozzáadása a következő lépésben
+
+            adapter = NoteAdapter(files) { file ->
+                Toast.makeText(this, "📂 Kiválasztva: ${file.name}", Toast.LENGTH_SHORT).show()
+                // Később: fájl tartalmának megjelenítése
+            }
+
+            recyclerView.adapter = adapter
         } else {
             recyclerView.visibility = android.view.View.GONE
             emptyState.visibility = android.view.View.VISIBLE
